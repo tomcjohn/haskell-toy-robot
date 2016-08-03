@@ -5,6 +5,8 @@ data Direction = North | East | South | West
 data Position = Position Int Int
 
 data Robot = Robot Direction Position
+instance Show Robot where
+  show r = printRobot r
 
 place :: Position -> Robot -> Robot
 place p (Robot d _) = Robot d p
@@ -36,10 +38,16 @@ printDirection West = "West"
 printPosition :: Position -> String
 printPosition (Position x y) = show x ++ "," ++ show y
 
-report :: Robot -> IO ()
-report (Robot d p) = putStrLn ((printPosition p) ++ "," ++ (printDirection d))
+printRobot :: Robot -> String
+printRobot (Robot d p) = (printPosition p) ++ "," ++ (printDirection d)
+
+report :: Robot -> IO Robot
+report r = do
+  putStrLn $ printRobot(r)
+  return r
 
 main :: IO ()
 main = do
-  report ((move . move . turnLeft . move . turnLeft . move . move . move) r)
+  report r
+  print ((move . move . turnLeft . move . turnLeft . move . move . move) r)
   where r = Robot North (Position 2 3)
