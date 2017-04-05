@@ -1,8 +1,8 @@
 module ToyRobot where
 
-import Control.Monad ((>=>))
+import Control.Monad.State
 
-data Direction = North | East | South | West
+data Direction = North | East | South | West deriving Show
 
 data Position = Position Int Int
 
@@ -15,44 +15,61 @@ printPosition :: Position -> String
 printPosition (Position x y) = show x ++ "," ++ show y
 
 printDirection :: Direction -> String
-printDirection North = "North"
-printDirection East = "East"
-printDirection South = "South"
-printDirection West = "West"
+printDirection = show
 
-place :: Position -> Robot -> IO Robot
-place p (Robot d _) = return (Robot d p)
+place :: Position -> Direction -> State Robot ()
+place p d = put (Robot d p)
 
-turnLeft :: Robot -> IO Robot
-turnLeft (Robot North p) = return (Robot West p)
-turnLeft (Robot East p) = return (Robot North p)
-turnLeft (Robot South p) = return (Robot East p)
-turnLeft (Robot West p) = return (Robot South p)
+left :: State Robot ()
+left = modify doLeft
+  where
+    doLeft (Robot North p) = Robot West p
+    doLeft (Robot East p) = Robot North p
+    doLeft (Robot South p) = Robot East p
+    doLeft (Robot West p) = Robot South p
 
-turnRight :: Robot -> IO Robot
-turnRight (Robot North p) = return (Robot East p)
-turnRight (Robot East p) = return (Robot South p)
-turnRight (Robot South p) = return (Robot West p)
-turnRight (Robot West p) = return (Robot North p)
+right :: State Robot ()
+right = modify doRight
+  where
+    doRight (Robot North p) = Robot East p
+    doRight (Robot East p) = Robot South p
+    doRight (Robot South p) = Robot West p
+    doRight (Robot West p) = Robot North p
 
-move :: Robot -> IO Robot
-move (Robot North (Position x y)) = return (Robot North (Position x (y + 1)))
-move (Robot East (Position x y)) = return (Robot East (Position (x + 1) y))
-move (Robot South (Position x y)) = return (Robot South (Position x (y - 1)))
-move (Robot West (Position x y)) = return (Robot West (Position (x - 1) y))
+move :: State Robot ()
+move = modify doMove
+  where
+    doMove (Robot North (Position x y)) = Robot North (Position x (y + 1))
+    doMove (Robot East (Position x y)) = Robot East (Position (x + 1) y)
+    doMove (Robot South (Position x y)) = Robot South (Position x (y - 1))
+    doMove (Robot West (Position x y)) = Robot West (Position (x - 1) y)
 
-report :: Robot -> IO Robot
-report r = do
-  putStrLn $ printRobot(r)
-  return r
+report :: State Robot (Maybe String)
+report = do
+  robot <- get
+  return (Just (printRobot robot))
 
-main :: IO Robot
+parseInput :: String -> State Robot ()
+parseInput line =
+  if "place" == line
+    then place (Position 1 4) South
+  else if "left" == line
+    then left
+  else if "right" == line
+    then right
+  else if "move" == line
+    then move
+  else
+    return ()
+
+execStates :: Robot -> [State Robot ()] -> Robot
+execStates r os = execState (sequence_ os) r
+
+main :: IO ()
 main = do
-  (move >=> report >=>
-   move >=> report >=>
-   place (Position 1 1) >=> report >=>
-   turnLeft >=> report >=>
-   move >=> report >=>
-   turnLeft >=> report >=>
-   move >=> report) r
-  where r = Robot North (Position 2 3)
+  let r = Robot North (Position 2 3)
+  input <- getContents
+  let inputLines = lines input
+  let ops = fmap parseInput inputLines
+  let finalRobot = execStates r ops
+  putStrLn $ printRobot finalRobot
