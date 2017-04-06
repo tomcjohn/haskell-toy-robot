@@ -8,6 +8,8 @@ data Position = Position Int Int
 
 data Robot = Robot Direction Position
 
+type GameAction = State Robot ()
+
 printRobot :: Robot -> String
 printRobot (Robot d p) = printPosition p ++ "," ++ printDirection d
 
@@ -17,10 +19,10 @@ printPosition (Position x y) = show x ++ "," ++ show y
 printDirection :: Direction -> String
 printDirection = show
 
-place :: Position -> Direction -> State Robot ()
+place :: Position -> Direction -> GameAction
 place p d = put (Robot d p)
 
-left :: State Robot ()
+left :: GameAction
 left = modify doLeft
   where
     doLeft (Robot North p) = Robot West p
@@ -28,7 +30,7 @@ left = modify doLeft
     doLeft (Robot South p) = Robot East p
     doLeft (Robot West p) = Robot South p
 
-right :: State Robot ()
+right :: GameAction
 right = modify doRight
   where
     doRight (Robot North p) = Robot East p
@@ -36,7 +38,7 @@ right = modify doRight
     doRight (Robot South p) = Robot West p
     doRight (Robot West p) = Robot North p
 
-move :: State Robot ()
+move :: GameAction
 move = modify doMove
   where
     doMove (Robot North (Position x y)) = Robot North (Position x (y + 1))
@@ -44,12 +46,12 @@ move = modify doMove
     doMove (Robot South (Position x y)) = Robot South (Position x (y - 1))
     doMove (Robot West (Position x y)) = Robot West (Position (x - 1) y)
 
-report :: State Robot (Maybe String)
-report = do
-  robot <- get
-  return (Just (printRobot robot))
+report :: GameAction
+report = undefined
+--  robot <- get
+--  return (Just (printRobot robot))
 
-parseInput :: String -> State Robot ()
+parseInput :: String -> GameAction
 parseInput line =
   if "place" == line
     then place (Position 1 4) South
@@ -62,8 +64,9 @@ parseInput line =
   else
     return ()
 
-execStates :: Robot -> [State Robot ()] -> Robot
-execStates r os = execState (sequence_ os) r
+execStates :: Robot -> [GameAction] -> Robot
+execStates r [] = r
+execStates r (o:os) = execStates (execState o r) os
 
 main :: IO ()
 main = do
