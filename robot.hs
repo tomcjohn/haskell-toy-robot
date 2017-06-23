@@ -1,5 +1,3 @@
-module ToyRobot where
-
 import Control.Monad.State
 import System.IO
 
@@ -67,26 +65,28 @@ parseInput line =
   else
     return ()
 
-runMe :: StateT Robot IO ()
-runMe = do
-  line <- liftIO myGetLine
+myGetLine :: Handle -> IO (Maybe String)
+myGetLine handle = do
+  eof <- hIsEOF handle
+  if eof
+    then return Nothing
+    else do
+      line <- hGetLine handle
+      return (Just line)
+
+runMe :: Handle -> StateT Robot IO ()
+runMe handle = do
+  line <- liftIO (myGetLine handle)
   case line of
     Nothing -> return ()
     Just a -> do
       let op = parseInput a
       op
-      runMe
-
-myGetLine :: IO (Maybe String)
-myGetLine = do
-  eof <- hIsEOF stdin
-  if eof
-    then return Nothing
-    else do
-      input <- getLine
-      return (Just input)
+      runMe handle
 
 main :: IO ()
 main = do
+  handle <- openFile "input.txt" ReadMode
   let r = Robot North (Position 2 3)
-  evalStateT runMe r
+  evalStateT (runMe handle) r
+  hClose handle
