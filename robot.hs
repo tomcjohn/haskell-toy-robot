@@ -1,5 +1,7 @@
 import Control.Monad.State
 import System.IO
+import Data.List
+import Data.String
 
 data Direction = North | East | South | West deriving Show
 
@@ -51,19 +53,41 @@ report = do
   liftIO (putStrLn (printRobot r))
 
 parseInput :: String -> GameAction
-parseInput line =
-  if "place" == line
-    then place (Position 1 4) South
-  else if "left" == line
-    then left
-  else if "right" == line
-    then right
-  else if "move" == line
-    then move
-  else if "report" == line
-    then report
-  else
-    return ()
+parseInput cmd = do
+  let splitCmd = mySplit ' ' cmd
+  case (splitCmd !! 0) of
+    "PLACE" -> do
+      let splitPlaceCmd = mySplit ',' (splitCmd !! 1)
+      let newX = read (splitPlaceCmd !! 0) :: Int
+      let newY = read (splitPlaceCmd !! 1) :: Int
+      let newPos = Position newX newY
+      let newDir = lookupDir (splitPlaceCmd !! 2)
+      place newPos newDir
+    "LEFT" -> left
+    "RIGHT" -> right
+    "MOVE" -> move
+    "REPORT" -> report
+    _ -> return()
+
+mySplit :: Char -> [Char] -> [[Char]]
+mySplit c [] = []
+mySplit c s = doSplit c s []
+
+doSplit :: Char -> [Char] -> [[Char]] -> [[Char]]
+doSplit c [] acc = acc
+doSplit c s acc = do
+  let i = findIndex (\x -> x == c) s
+  case i of
+    Nothing -> doSplit c [] (acc ++ [s])
+    Just a -> doSplit c (drop (a+1) s) (acc ++ [take a s])
+
+lookupDir :: String -> Direction
+lookupDir d = do
+  case d of
+    "NORTH" -> North
+    "SOUTH" -> South
+    "EAST" -> East
+    "WEST" -> West
 
 myGetLine :: Handle -> IO (Maybe String)
 myGetLine handle = do
@@ -74,7 +98,7 @@ myGetLine handle = do
       line <- hGetLine handle
       return (Just line)
 
-runMe :: Handle -> StateT Robot IO ()
+runMe :: Handle -> GameAction
 runMe handle = do
   line <- liftIO (myGetLine handle)
   case line of
@@ -86,7 +110,7 @@ runMe handle = do
 
 main :: IO ()
 main = do
-  handle <- openFile "input.txt" ReadMode
+  handle <- openFile "robot-test.in" ReadMode
   let r = Robot North (Position 2 3)
   evalStateT (runMe handle) r
   hClose handle

@@ -1,8 +1,0 @@
-move
-move
-report
-move
-report
-left
-move
-report
