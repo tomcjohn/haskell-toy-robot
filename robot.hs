@@ -9,6 +9,8 @@ data Position = Position Int Int
 
 data Robot = Robot Direction Position
 
+data Table = Table Position Position
+
 type GameAction = StateT Robot IO ()
 
 printRobot :: Robot -> String
@@ -107,6 +109,11 @@ runMe handle = do
       let op = parseInput a
       op
       runMe handle
+
+onTable :: Table -> Robot -> Bool
+onTable (Table (Position x1 y1) (Position x2 y2)) (Robot _ (Position rx ry)) =
+  rx >= x1 && rx <= x2 &&
+   ry >= y1 && ry <= y2
 
 main :: IO ()
 main = do
