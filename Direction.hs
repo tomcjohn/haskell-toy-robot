@@ -27,3 +27,10 @@ right North = East
 right East = South
 right South = West
 right West = North
+
+lookup :: String -> Direction
+lookup "NORTH" = North
+lookup "SOUTH" = South
+lookup "EAST" = East
+lookup "WEST" = West
+lookup _ = undefined
