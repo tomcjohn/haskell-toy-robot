@@ -1,5 +1,7 @@
 module Direction where
 
+import Position
+
 data Direction = North | South | East | West
 
 instance Show Direction where
@@ -8,14 +10,20 @@ instance Show Direction where
   show East = "East"
   show West = "West"
 
-turnLeft :: Direction -> Direction
-turnLeft North = West
-turnLeft West = South
-turnLeft South = East
-turnLeft East = North
+move :: Direction -> Position -> Position
+move North (Position x y) = Position x (y+1)
+move South (Position x y) = Position x (y-1)
+move East  (Position x y) = Position (x+1) y
+move West  (Position x y) = Position (x-1) y
 
-turnRight :: Direction -> Direction
-turnRight North = East
-turnRight East = South
-turnRight South = West
-turnRight West = North
+left :: Direction -> Direction
+left North = West
+left West = South
+left South = East
+left East = North
+
+right :: Direction -> Direction
+right North = East
+right East = South
+right South = West
+right West = North

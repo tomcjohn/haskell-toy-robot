@@ -2,6 +2,7 @@ module Robot where
 
 import Position
 import Direction
+import Direction (move, left, right)
 
 data Robot = Robot Position Direction
 
@@ -9,15 +10,13 @@ instance Show Robot where
   show (Robot p d) = (show p) ++ "," ++ (show d)
 
 move :: Robot -> Robot
-move (Robot p d) = Robot p d
+move (Robot p d) = Robot (Direction.move d p) d
 
 left :: Robot -> Robot
-left (Robot p d) = Robot p (turnLeft d)
+left (Robot p d) = Robot p (Direction.left d)
 
 right :: Robot -> Robot
-right (Robot p d) = Robot p (turnRight d)
+right (Robot p d) = Robot p (Direction.right d)
 
-main :: IO ()
-main = do
-  let r = Robot (Position 1 1) North
-  putStrLn(show(r))
+report :: Robot -> IO ()
+report r = putStrLn(show r)
