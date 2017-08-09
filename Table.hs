@@ -8,14 +8,13 @@ import Robot
 
 data Table = Table Position Position
 
-doCommand :: Table -> String -> IO ()
+doCommand :: Table -> String -> IO Robot
 doCommand t cmd = do
   let splitCmd = splitOn " " cmd
   let f = handleCommand (splitCmd!!0) t
-  let newR = f (Robot (Position 1 1) North)
-  putStrLn (show newR)
+  f (Robot (Position 1 1) North)
 
-handleCommand :: String -> Table -> Robot -> Robot
+handleCommand :: String -> Table -> Robot -> IO Robot
 handleCommand "PLACE" = doPlace
 handleCommand "MOVE" = doMove
 handleCommand "LEFT" = doLeft
@@ -23,7 +22,7 @@ handleCommand "RIGHT" = doRight
 handleCommand "REPORT" = doReport
 handleCommand _ = skipCmd
 
-doPlace :: Table -> Robot -> Robot
+doPlace :: Table -> Robot -> IO Robot
 doPlace t r = do
   let placeCmd = "3,4,WEST"
   let splitPlaceCmd = splitOn "," placeCmd
@@ -31,19 +30,19 @@ doPlace t r = do
   let newY = read (splitPlaceCmd!!1)
   let newDir = Direction.lookup (splitPlaceCmd!!2)
   let newR = Robot (Position newX newY) newDir
-  if (onTable t newR) then newR else r
-doMove :: Table -> Robot -> Robot
+  if (onTable t newR) then return newR else return r
+doMove :: Table -> Robot -> IO Robot
 doMove t r = do
-  let newR = Robot.move r
-  if (onTable t newR) then newR else r
-doLeft :: Table -> Robot -> Robot
+  newR <- Robot.move r
+  if (onTable t newR) then return newR else return r
+doLeft :: Table -> Robot -> IO Robot
 doLeft _ = Robot.left
-doRight :: Table -> Robot -> Robot
+doRight :: Table -> Robot -> IO Robot
 doRight _ = Robot.right
-doReport :: Table -> Robot -> Robot
-doReport _ r = r
-skipCmd :: Table -> Robot -> Robot
-skipCmd _ = id
+doReport :: Table -> Robot -> IO Robot
+doReport _ = Robot.report
+skipCmd :: Table -> Robot -> IO Robot
+skipCmd _ r = return r
 
 onTable :: Table -> Robot -> Bool
 onTable (Table (Position x1 y1) (Position x2 y2)) (Robot (Position rx ry) _) =

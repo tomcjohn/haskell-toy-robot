@@ -9,14 +9,16 @@ data Robot = Robot Position Direction
 instance Show Robot where
   show (Robot p d) = (show p) ++ "," ++ (show d)
 
-move :: Robot -> Robot
-move (Robot p d) = Robot (Direction.move d p) d
+move :: Robot -> IO Robot
+move (Robot p d) = return (Robot (Direction.move d p) d)
 
-left :: Robot -> Robot
-left (Robot p d) = Robot p (Direction.left d)
+left :: Robot -> IO Robot
+left (Robot p d) = return (Robot p (Direction.left d))
 
-right :: Robot -> Robot
-right (Robot p d) = Robot p (Direction.right d)
+right :: Robot -> IO Robot
+right (Robot p d) = return (Robot p (Direction.right d))
 
-report :: Robot -> IO ()
-report r = putStrLn(show r)
+report :: Robot -> IO Robot
+report r = do
+  putStrLn(show r)
+  return r
