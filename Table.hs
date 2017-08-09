@@ -8,39 +8,43 @@ import Robot
 
 data Table = Table Position Position
 
-doCommand :: Table -> String -> IO Robot
-doCommand t cmd = do
+doCommand :: String -> Table -> IO Robot
+doCommand cmd t = do
   let splitCmd = splitOn " " cmd
-  let f = handleCommand (splitCmd!!0) t
+  let f = handleCommand (splitCmd!!0) (splitCmd!!1) t
   f (Robot (Position 1 1) North)
 
-handleCommand :: String -> Table -> Robot -> IO Robot
-handleCommand "PLACE" = doPlace
-handleCommand "MOVE" = doMove
-handleCommand "LEFT" = doLeft
-handleCommand "RIGHT" = doRight
-handleCommand "REPORT" = doReport
-handleCommand _ = skipCmd
+handleCommand :: String -> String -> Table -> Robot -> IO Robot
+handleCommand "PLACE" placeCmd = doPlace placeCmd
+handleCommand "MOVE" _ = doMove
+handleCommand "LEFT" _ = doLeft
+handleCommand "RIGHT" _ = doRight
+handleCommand "REPORT" _ = doReport
+handleCommand _ _ = skipCmd
 
-doPlace :: Table -> Robot -> IO Robot
-doPlace t r = do
-  let placeCmd = "3,4,WEST"
-  let splitPlaceCmd = splitOn "," placeCmd
-  let newX = read (splitPlaceCmd!!0)
-  let newY = read (splitPlaceCmd!!1)
-  let newDir = Direction.lookup (splitPlaceCmd!!2)
+doPlace :: String -> Table -> Robot -> IO Robot
+doPlace cmd t r = do
+  let splitCmd = splitOn "," cmd
+  let newX = read (splitCmd!!0)
+  let newY = read (splitCmd!!1)
+  let newDir = Direction.lookup (splitCmd!!2)
   let newR = Robot (Position newX newY) newDir
   if (onTable t newR) then return newR else return r
+
 doMove :: Table -> Robot -> IO Robot
 doMove t r = do
   newR <- Robot.move r
   if (onTable t newR) then return newR else return r
+
 doLeft :: Table -> Robot -> IO Robot
 doLeft _ = Robot.left
+
 doRight :: Table -> Robot -> IO Robot
 doRight _ = Robot.right
+
 doReport :: Table -> Robot -> IO Robot
 doReport _ = Robot.report
+
 skipCmd :: Table -> Robot -> IO Robot
 skipCmd _ r = return r
 

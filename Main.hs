@@ -18,7 +18,7 @@ readAllLines h t = forever $ do
   weAreDone <- hIsEOF h
   when weAreDone exitSuccess
   cmd <- hGetLine h
-  doCommand t cmd
+  doCommand cmd t
 
 main :: IO ()
 main = do
