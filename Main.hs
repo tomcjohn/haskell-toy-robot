@@ -2,9 +2,7 @@ module Main where
 
 import System.IO
 
-import Control.Monad (forever, when)
-import System.Exit (exitSuccess)
-
+import Robot
 import Position
 import Table
 
@@ -13,18 +11,20 @@ readLine h = do
   line <- hGetLine h
   putStrLn line
 
-readAllLines :: Handle -> Table -> IO ()
-readAllLines h t = forever $ do
-  weAreDone <- hIsEOF h
-  when weAreDone exitSuccess
-  cmd <- hGetLine h
-  doCommand cmd t
+printRobots :: [IO Robot] -> IO ()
+printRobots [] = putStrLn "done"
+printRobots (i:is) = do
+  r <- i
+  putStrLn (show r)
+  printRobots is
 
 main :: IO ()
 main = do
   let t = Table (Position 0 0) (Position 5 5)
 
   let filename = "robot-test.in"
-  h <- openFile filename ReadMode
-  readAllLines h t
-  hClose h
+  content <- readFile filename
+  let cmds = lines content
+
+  let robots = map (\cmd -> doCommand cmd t) cmds
+  printRobots robots
