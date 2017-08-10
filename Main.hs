@@ -2,8 +2,9 @@ module Main where
 
 import System.IO
 
-import Robot
+import Command
 import Position
+import Robot
 import Table
 
 readLine :: Handle -> IO ()
@@ -24,7 +25,7 @@ main = do
 
   let filename = "robot-test.in"
   content <- readFile filename
-  let cmds = lines content
+  let cmds = map toCommand (lines content)
 
   let robots = map (\cmd -> doCommand cmd t) cmds
   printRobots robots
