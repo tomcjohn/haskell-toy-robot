@@ -1,8 +1,9 @@
 module Main where
 
+import Control.Monad.State
 import System.IO
 
-import Command
+import Direction
 import Position
 import Robot
 import Table
@@ -12,12 +13,8 @@ readLine h = do
   line <- hGetLine h
   putStrLn line
 
-printRobots :: [IO Robot] -> IO ()
-printRobots [] = putStrLn "done"
-printRobots (i:is) = do
-  r <- i
-  putStrLn (show r)
-  printRobots is
+printLength :: String -> [a] -> IO ()
+printLength s xs = print (s ++ ": " ++ (show (length xs)))
 
 main :: IO ()
 main = do
@@ -25,7 +22,13 @@ main = do
 
   let filename = "robot-test.in"
   content <- readFile filename
-  let cmds = map toCommand (lines content)
 
-  let robots = map (\cmd -> doCommand cmd t) cmds
-  printRobots robots
+  let cmds = lines content
+  printLength "cmds" cmds
+
+  let states = map (\s -> doCommand s t) (lines content)
+  printLength "states" states
+
+  let finalState = foldr (>>) (pure ()) states
+
+  print (execState finalState (Robot (Position 1 1) North))

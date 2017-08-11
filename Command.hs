@@ -6,6 +6,14 @@ import Direction
 
 data Command = Place Int Int Direction | Move | Left | Right | Report | Unrecognised
 
+instance Show Command where
+  show (Place x y d) = "Place" ++ show x ++ show y ++ show d
+  show Move = "Move"
+  show Command.Left = "Left"
+  show Command.Right = "Right"
+  show Report = "Report"
+  show Unrecognised = "Unrecognised"
+
 toCommand :: String -> Command
 toCommand s = do
   let splitCmd = splitOn " " s
