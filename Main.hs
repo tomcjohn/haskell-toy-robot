@@ -13,9 +13,6 @@ readLine h = do
   line <- hGetLine h
   putStrLn line
 
-printLength :: String -> [a] -> IO ()
-printLength s xs = print (s ++ ": " ++ (show (length xs)))
-
 main :: IO ()
 main = do
   let t = Table (Position 0 0) (Position 5 5)
@@ -23,12 +20,7 @@ main = do
   let filename = "robot-test.in"
   content <- readFile filename
 
-  let cmds = lines content
-  printLength "cmds" cmds
-
   let states = map (\s -> doCommand s t) (lines content)
-  printLength "states" states
-
   let finalState = foldr (>>) (pure ()) states
 
   print (execState finalState (Robot (Position 1 1) North))

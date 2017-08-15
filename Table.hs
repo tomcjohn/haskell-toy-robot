@@ -16,9 +16,8 @@ onTable (Table (Position x1 y1) (Position x2 y2)) (Robot (Position rx ry) _) =
 
 doCommand :: String -> Table -> GameState
 doCommand s t = do
-  let c = toCommand s
-  let r = Robot (Position 1 1) North
-  handleCmd c t r
+  r <- get
+  handleCmd (toCommand s) t r
 
 handleCmd :: Command -> Table -> Robot -> GameState
 handleCmd (Place x y d) t _ = do
