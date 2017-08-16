@@ -4,38 +4,49 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans.State
 
 import Command
-import Direction
 import Position
 import Robot
 
 data Table = Table Position Position
-type GameState = StateT Robot IO ()
+type GameState = StateT (Maybe Robot) IO ()
 
-onTable :: Table -> Robot -> Bool
-onTable (Table (Position x1 y1) (Position x2 y2)) (Robot (Position rx ry) _) =
+onTable :: Table -> Maybe Robot -> Bool
+onTable t (Just r) = robotOnTable t r
+onTable _ Nothing = False
+
+robotOnTable :: Table -> Robot -> Bool
+robotOnTable (Table (Position x1 y1) (Position x2 y2)) (Robot (Position rx ry) _) =
   (rx >= x1) && (rx <= x2) && (ry >= y1) && (ry <= y2)
 
 doCommand :: String -> Table -> GameState
-doCommand s t = do
-  r <- get
-  handleCmd (toCommand s) t r
+doCommand s t = handleCmd (toCommand s) t
 
-handleCmd :: Command -> Table -> Robot -> GameState
-handleCmd (Place x y d) t _ = do
+handleCmd :: Command -> Table -> GameState
+handleCmd (Place x y d) t = do
   let newR = Robot (Position x y) d
-  if (onTable t newR) then put newR else pure ()
-handleCmd Move t r = put (doMove t r)
-handleCmd Command.Left _ r = put (Robot.left r)
-handleCmd Command.Right _ r = put (Robot.right r)
-handleCmd Report _ r = liftIO (Robot.report r)
-handleCmd Unrecognised _ _ = pure ()
+  if (robotOnTable t newR) then put (Just newR) else pure ()
+handleCmd Move t = adjustWithCheck Robot.move (onTable t)
+handleCmd Command.Left _ = adjust Robot.left
+handleCmd Command.Right _ = adjust Robot.right
+handleCmd Report _ = do
+  maybeRobot <- get
+  doReport maybeRobot
+handleCmd Unrecognised _ = pure ()
 
-doPlace :: Int -> Int -> Direction -> Table -> Robot -> Robot
-doPlace x y d t r = do
-  let newR = Robot (Position x y) d
-  if (onTable t newR) then newR else r
+doReport :: Maybe Robot -> GameState
+doReport (Just r) = do
+  liftIO (Robot.report r)
+  pure ()
+doReport Nothing = pure ()
 
-doMove :: Table -> Robot -> Robot
-doMove t r = do
-  let newR = Robot.move r
-  if (onTable t newR) then newR else r
+adjust :: (Robot -> Robot) -> GameState
+adjust action = adjustWithCheck action always
+
+adjustWithCheck :: (Robot -> Robot) -> (Maybe Robot -> Bool) -> GameState
+adjustWithCheck action accept = do
+  maybeRobot <- get
+  let newRobot = fmap action maybeRobot :: Maybe Robot
+  if (accept newRobot) then (put newRobot) else pure ()
+
+always :: a -> Bool
+always _ = True
