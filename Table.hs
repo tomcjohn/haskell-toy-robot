@@ -1,6 +1,7 @@
 module Table where
 
-import Control.Monad.State
+import Control.Monad.IO.Class
+import Control.Monad.Trans.State
 
 import Command
 import Direction
@@ -8,7 +9,7 @@ import Position
 import Robot
 
 data Table = Table Position Position
-type GameState = State Robot ()
+type GameState = StateT Robot IO ()
 
 onTable :: Table -> Robot -> Bool
 onTable (Table (Position x1 y1) (Position x2 y2)) (Robot (Position rx ry) _) =
@@ -26,7 +27,7 @@ handleCmd (Place x y d) t _ = do
 handleCmd Move t r = put (doMove t r)
 handleCmd Command.Left _ r = put (Robot.left r)
 handleCmd Command.Right _ r = put (Robot.right r)
-handleCmd Report _ _ = pure ()
+handleCmd Report _ r = liftIO (Robot.report r)
 handleCmd Unrecognised _ _ = pure ()
 
 doPlace :: Int -> Int -> Direction -> Table -> Robot -> Robot

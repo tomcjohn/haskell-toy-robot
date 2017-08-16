@@ -1,6 +1,6 @@
 module Main where
 
-import Control.Monad.State
+import Control.Monad.Trans.State
 import System.IO
 
 import Direction
@@ -20,7 +20,8 @@ main = do
   let filename = "robot-test.in"
   content <- readFile filename
 
-  let states = map (\s -> doCommand s t) (lines content)
-  let finalState = foldr (>>) (pure ()) states
-
-  print (execState finalState (Robot (Position 1 1) North))
+  let initialRobot = (Robot (Position 1 1) North) :: Robot
+  let states = map (\s -> doCommand s t) (lines content) :: [GameState]
+  let finalState = foldr (>>) (pure ()) states :: GameState
+  _ <- execStateT finalState initialRobot :: IO Robot
+  pure ()

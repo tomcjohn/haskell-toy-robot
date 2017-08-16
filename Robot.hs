@@ -18,7 +18,5 @@ left (Robot p d) = Robot p (Direction.left d)
 right :: Robot -> Robot
 right (Robot p d) = Robot p (Direction.right d)
 
-report :: Robot -> IO Robot
-report r = do
-  print r
-  pure r
+report :: Robot -> IO ()
+report r = print r
