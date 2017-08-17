@@ -1,0 +1,10 @@
+module Main where
+
+import Direction
+import Position
+import Robot
+
+main :: IO ()
+main = do
+  let r = Robot (Position 1 3) North
+  Robot.report r
