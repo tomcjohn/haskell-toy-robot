@@ -1,33 +1,48 @@
 module Table where
 
+import Control.Monad.Trans.State
 import Data.List.Split
 
 import Command
-import Direction
 import Position
 import Robot
 
 data Table = Table Position Position
 
-onTable :: Table -> Robot -> Bool
-onTable (Table (Position x1 y1) (Position x2 y2)) (Robot (Position rx ry ) _) =
+type GameState = StateT (Maybe Robot) IO ()
+
+onTable :: Table -> Maybe Robot -> Bool
+onTable t (Just r) = robotOnTable t r
+onTable _ Nothing = False
+
+robotOnTable :: Table -> Robot -> Bool
+robotOnTable (Table (Position x1 y1) (Position x2 y2)) (Robot (Position rx ry ) _) =
   rx >= x1 && rx <= x2 && ry >= y1 && ry <= y2
 
-doCommand :: Table -> String -> Robot
+doCommand :: Table -> String -> GameState
 doCommand t s = do
   let splitCmd = splitOn " " s
   let c = Command.lookup (splitCmd!!0) (splitCmd!!1)
-  let r = Robot (Position 2 5) East
-  handleCmd c t r
+  handleCmd c t
 
-handleCmd :: Command -> Table -> Robot -> Robot
-handleCmd (Place p d) t r = do
+handleCmd :: Command -> Table -> GameState
+handleCmd (Place p d) t = do
   let newR = Robot p d
-  if (onTable t newR) then newR else r
-handleCmd Move t r = do
-  let newR = Robot.move r
-  if (onTable t newR) then newR else r
-handleCmd Command.Left _ r = Robot.left r
-handleCmd Command.Right _ r = Robot.right r
-handleCmd Report _ _ = undefined
-handleCmd Unrecognised _ _ = undefined
+  if (robotOnTable t newR) then put (Just newR) else pure ()
+handleCmd Move t = adjustRobot (Robot.move) (onTable t)
+handleCmd Command.Left _ = alwaysAdjust Robot.left
+handleCmd Command.Right _ = alwaysAdjust Robot.right
+handleCmd Report _ = pure ()
+handleCmd Unrecognised _ = pure ()
+
+alwaysAdjust :: (Robot -> Robot) -> GameState
+alwaysAdjust action = adjustRobot action always
+
+always :: Maybe Robot -> Bool
+always _ = True
+
+adjustRobot :: (Robot -> Robot) -> (Maybe Robot -> Bool) -> GameState
+adjustRobot action accept = do
+  maybeRobot <- get
+  let newR = fmap action maybeRobot
+  if (accept newR) then put newR else pure ()

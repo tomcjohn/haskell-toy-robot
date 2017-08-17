@@ -1,7 +1,8 @@
 module Main where
 
+import Control.Monad.Trans.State
+
 import Position
-import Robot
 import Table
 
 main :: IO ()
@@ -11,6 +12,8 @@ main = do
 
   let t = Table (Position 0 0) (Position 5 5)
 
-  let robots = map (doCommand t) (lines content)
+  let states = (map (doCommand t) (lines content)) :: [GameState]
 
-  Robot.report (robots!!10)
+  let finalState = (foldr (>>) (pure ()) states) :: GameState
+
+  evalStateT finalState Nothing
