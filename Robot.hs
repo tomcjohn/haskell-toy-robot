@@ -6,7 +6,7 @@ import Position
 data Robot = Robot Position Direction
 
 instance Show Robot where
-  show (Robot p d) = show p ++ "," ++ show d
+  show (Robot p d) = "(" ++ show p ++ "," ++ show d ++ ")"
 
 move :: Robot -> Robot
 move (Robot p d) = Robot (Direction.move d p) d

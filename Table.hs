@@ -1,5 +1,6 @@
 module Table where
 
+import Control.Monad.IO.Class
 import Control.Monad.Trans.State
 import Data.List.Split
 
@@ -32,8 +33,14 @@ handleCmd (Place p d) t = do
 handleCmd Move t = adjustRobot (Robot.move) (onTable t)
 handleCmd Command.Left _ = alwaysAdjust Robot.left
 handleCmd Command.Right _ = alwaysAdjust Robot.right
-handleCmd Report _ = pure ()
+handleCmd Report _ = do
+  maybeRobot <- get
+  doReport maybeRobot
 handleCmd Unrecognised _ = pure ()
+
+doReport :: Maybe Robot -> GameState
+doReport (Just r) = liftIO (Robot.report r)
+doReport _ = pure ()
 
 alwaysAdjust :: (Robot -> Robot) -> GameState
 alwaysAdjust action = adjustRobot action always
