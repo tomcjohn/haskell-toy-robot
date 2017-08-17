@@ -9,7 +9,7 @@ data Command = Place Position Direction | Move | Left | Right | Report | Unrecog
 
 lookup :: String -> String -> Command
 lookup "PLACE" s = do
-  let splitCmd = splitOn " " s
+  let splitCmd = splitOn "," s
   let newX = read (splitCmd!!0)
   let newY = read (splitCmd!!1)
   let newDir = Direction.lookup (splitCmd!!2)
