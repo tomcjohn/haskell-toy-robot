@@ -8,3 +8,11 @@ cabal install --dependencies-only --enable-tests
 cabal configure --enable-tests
 cabal test
 ```
+
+```
+cabal clean && cabal build && cabal test
+```
+
+```
+cabal run
+```
