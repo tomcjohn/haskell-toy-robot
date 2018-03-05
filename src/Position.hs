@@ -1,10 +1,10 @@
-module Pos where
+module Position where
 
-import Orientation
+import Direction
 
-type Pos = (Int,Int)
+type Position = (Int,Int)
 
-move :: Orientation -> Pos -> Pos
+move :: Direction -> Position -> Position
 move North (x,y) = (x  , y+1)
 move East  (x,y) = (x+1, y  )
 move South (x,y) = (x  , y-1)

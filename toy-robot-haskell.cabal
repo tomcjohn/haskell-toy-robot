@@ -11,10 +11,12 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Orientation
-                     , Pos
+  exposed-modules:     Command
+                     , Direction
+                     , Position
                      , Robot
   build-depends:       base >= 4.8 && < 5
+                     , split
   default-language:    Haskell2010
   ghc-options:         -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
 
@@ -24,6 +26,7 @@ executable toy-robot-haskell-exe
 --  other-modules:       Emailer
   ghc-options:         -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base >= 4.8 && < 5
+                     , split
                      , toy-robot-haskell
   default-language:    Haskell2010
 
