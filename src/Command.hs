@@ -19,7 +19,7 @@ data Command
 lookup :: String -> String -> Command
 lookup "PLACE"  s = do
   let split = splitOn "," s
-  let x = read $ split!!0
+  let x = read $ head split
   let y = read $ split!!1
   let d = D.lookup $ split!!2
   Place (x,y) d

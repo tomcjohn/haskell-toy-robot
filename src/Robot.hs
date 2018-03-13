@@ -29,5 +29,6 @@ move ioR = do
 report :: IO Robot -> IO Robot
 report ioR = do
   r <- ioR
-  print $ (show $ direction r) ++ " " ++ (show $ position r)
+  putStrLn "I AM HERE!!"
+  print $ show (direction r) ++ " " ++ show (position r)
   pure r
