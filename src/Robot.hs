@@ -11,24 +11,14 @@ data Robot = Robot
   , direction::Direction
   } deriving Show
 
-left :: IO Robot -> IO Robot
-left ioR = do
-  r <- ioR
-  pure $ Robot (position r) (O.left $ direction r)
+left :: Robot -> Robot
+left r = Robot (position r) (O.left $ direction r)
 
-right :: IO Robot -> IO Robot
-right ioR = do
-  r <- ioR
-  pure $ Robot (position r) (O.right $ direction r)
+right :: Robot -> Robot
+right r = Robot (position r) (O.right $ direction r)
 
-move :: IO Robot -> IO Robot
-move ioR = do
-  r <- ioR
-  pure $ Robot (P.move (direction r) (position r)) (direction r)
+move :: Robot -> Robot
+move r = Robot (P.move (direction r) (position r)) (direction r)
 
-report :: IO Robot -> IO Robot
-report ioR = do
-  r <- ioR
-  putStrLn "I AM HERE!!"
-  print $ show (direction r) ++ " " ++ show (position r)
-  pure r
+report :: Robot -> IO ()
+report = print
