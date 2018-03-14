@@ -1,18 +1,11 @@
 
-# toy-robot-haskell
+# haskell-toy-robot
 
 ```
-cabal update
-cabal sandbox init
-cabal install --dependencies-only --enable-tests
-cabal configure --enable-tests
-cabal test
+stack clean
+stack build && stack test
 ```
 
 ```
-cabal clean && cabal build && cabal test
-```
-
-```
-cabal run
+stack build && stack exec haskell-toy-robot-exe
 ```

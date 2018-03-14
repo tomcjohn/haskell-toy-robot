@@ -1,6 +1,6 @@
-name:                toy-robot-haskell
+name:                haskell-toy-robot
 version:             0.1.0.0
-homepage:            https://github.com/tomcjohn/toy-robot-haskell
+homepage:            https://github.com/tomcjohn/haskell-toy-robot
 author:              Tom John
 maintainer:          tomcjohn@gmail.com
 copyright:           private
@@ -21,28 +21,28 @@ library
   default-language:    Haskell2010
   ghc-options:         -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
 
-executable toy-robot-haskell-exe
+executable haskell-toy-robot-exe
   hs-source-dirs:      app
   main-is:             Main.hs
 --  other-modules:       Emailer
   ghc-options:         -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base >= 4.8 && < 5
                      , split
-                     , toy-robot-haskell
+                     , haskell-toy-robot
   default-language:    Haskell2010
 
-test-suite toy-robot-haskell-test
+test-suite haskell-toy-robot-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
                      , hspec
                      , QuickCheck
-                     , toy-robot-haskell
+                     , haskell-toy-robot
   ghc-options:         -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates -threaded -rtsopts -with-rtsopts=-N
   other-modules:       RobotSpec
   default-language:    Haskell2010
 
 source-repository head
   type:     git
-  location: https://github.com/tomcjohn/toy-robot-haskell
+  location: https://github.com/tomcjohn/haskell-toy-robot
