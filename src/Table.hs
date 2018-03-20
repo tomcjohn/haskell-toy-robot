@@ -31,7 +31,11 @@ parseCommand str = do
   C.lookup (head splitCmd) (splitCmd!!1)
 
 handleCmd :: Table -> Command -> GameState
-handleCmd t (Place p d)    = affectRobotWithCheck (\_ -> Robot p d) (onTable t)
+handleCmd t (Place p d)    = do
+  let newRobot = Just $ Robot p d
+  if onTable t newRobot
+    then put newRobot
+    else pure()
 handleCmd t C.Move         = affectRobotWithCheck R.move (onTable t)
 handleCmd _ C.Left         = affectRobot R.left
 handleCmd _ C.Right        = affectRobot R.right
@@ -50,7 +54,7 @@ affectRobot action = affectRobotWithCheck action always
 affectRobotWithCheck :: (Robot -> Robot) -> (Maybe Robot -> Bool) -> GameState
 affectRobotWithCheck action accept = do
   maybeRobot <- get
-  let newRobot = fmap action maybeRobot
+  let newRobot = action <$> maybeRobot
   if accept newRobot then put newRobot else pure ()
 
 always :: Maybe Robot -> Bool

@@ -9,7 +9,10 @@ import           Position   (Position)
 data Robot = Robot
   { position::Position
   , direction::Direction
-  } deriving Show
+  }
+
+instance Show Robot where
+  show (Robot p d) = show p ++ "," ++ show d
 
 left :: Robot -> Robot
 left r = Robot (position r) (O.left $ direction r)
